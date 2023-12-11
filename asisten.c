@@ -16,7 +16,7 @@ struct Kontak
 
 int main()
 {
-    FILE *fileDaftarKontak;
+    FILE *fileDaftarKontak, *fileTempKontak;
     struct Kontak kontak;
     char namaCari[50];
     int menuTerpilih;
@@ -24,6 +24,8 @@ int main()
     printf("\n=================SELAMAT DATANG DI DASHBOARD KONTAK KARYAWAN=================");
     printf("\n1.Tambah Kontak Karyawan");
     printf("\n2.Cari Kontak Karyawan");
+    printf("\n3.Hapus Kontak Karyawan");
+    printf("\n4.Hapus Semua Kontak");
     printf("\nPilih Menu : ");
     scanf("%d", &menuTerpilih);
 
@@ -65,6 +67,36 @@ int main()
                 break;
             }
         }
+        break;
+
+    case 3:
+        printf("\nMasukan nama kontak: ");
+        scanf("%s", &namaCari);
+
+        fileDaftarKontak = fopen("userdata.dat", "rb");
+        fileTempKontak = fopen("temp.dat", "wb");
+
+        while (fread(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak) == 1)
+        {
+            if (strcmp(kontak.nama, namaCari) != 0)
+            {
+                fwrite(&kontak, sizeof(struct Kontak), 1, fileTempKontak);
+            }
+        }
+        fclose(fileDaftarKontak);
+        fclose(fileTempKontak);
+
+        remove("userdata.dat");
+
+        // Mengganti nama file sementara menjadi nama file asli
+        rename("temp.dat", "userdata.dat");
+
+        printf("Kontak dengan nama telah dihapus.\n");
+        break;
+
+    case 4:
+        remove("userdata.dat");
+        fileDaftarKontak = fopen("userdata.dat", "w");
         break;
 
     default:
