@@ -1,110 +1,142 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
-void cobaLagi(int *lanjut)
-{
-    printf("Coba Lagi? : ");
-    scanf("%d", &lanjut);
-}
-// Struktur untuk menyimpan informasi kontak
+FILE *fileDaftarKontak, *fileTempKontak;
+
 struct Kontak
 {
     char nama[50];
     int umur;
-};
+} kontak;
 
-int main()
+// tambah kontak
+void tambahKontak()
 {
-    FILE *fileDaftarKontak, *fileTempKontak;
-    struct Kontak kontak;
-    char namaCari[50];
-    int menuTerpilih;
+    fileDaftarKontak = fopen("userdata.dat", "ab");
 
-    printf("\n=================SELAMAT DATANG DI DASHBOARD KONTAK KARYAWAN=================");
-    printf("\n1.Tambah Kontak Karyawan");
-    printf("\n2.Cari Kontak Karyawan");
-    printf("\n3.Hapus Kontak Karyawan");
-    printf("\n4.Hapus Semua Kontak");
-    printf("\nPilih Menu : ");
-    scanf("%d", &menuTerpilih);
-
-    switch (menuTerpilih)
+    if (fileDaftarKontak == NULL)
     {
+        perror("Gagal membuka file");
+        exit(EXIT_FAILURE);
+    }
 
-    case 1:
-        fileDaftarKontak = fopen("userdata.dat", "ab");
+    printf("\nMasukan nama : ");
+    scanf("%s", &kontak.nama);
+    printf("Masukan umur : ");
+    scanf("%d", &kontak.umur);
 
-        if (fileDaftarKontak == NULL)
+    fwrite(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak);
+    fclose(fileDaftarKontak);
+}
+
+void cariKontak(char namaCari[])
+{
+    fileDaftarKontak = fopen("userdata.dat", "rb");
+
+    while (fread(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak) == 1)
+    {
+        if (strcmp(kontak.nama, namaCari) == 0)
         {
-            perror("Gagal membuka file");
-            exit(EXIT_FAILURE);
+            printf("Nama: %s\n", kontak.nama);
+            printf("Umur: %d\n", kontak.umur);
+
+            break;
         }
+    }
+    fclose(fileDaftarKontak);
+}
 
-        printf("\nMasukan nama : ");
-        scanf("%s", &kontak.nama);
-        printf("Masukan umur : ");
-        scanf("%d", &kontak.umur);
+void hapusKontak(char namaCari[])
+{
+    fileDaftarKontak = fopen("userdata.dat", "rb");
+    fileTempKontak = fopen("temp.dat", "wb");
 
-        fwrite(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak);
-
-        break;
-    case 2:
-        fileDaftarKontak = fopen("userdata.dat", "rb");
-
-        printf("Masukkan nama yang ingin dicari: ");
-        scanf("%s", namaCari);
-
-        // Membaca dan menampilkan kontak berdasarkan nama
-        while (fread(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak) == 1)
+    while (fread(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak) == 1)
+    {
+        if (strcmp(kontak.nama, namaCari) != 0)
         {
-            if (strcmp(kontak.nama, namaCari) == 0)
-            {
-                // Menampilkan informasi kontak yang sesuai
-                printf("Nama: %s\n", kontak.nama);
-                printf("Umur: %d\n", kontak.umur);
-
-                break;
-            }
+            fwrite(&kontak, sizeof(struct Kontak), 1, fileTempKontak);
         }
-        break;
-
-    case 3:
-        printf("\nMasukan nama kontak: ");
-        scanf("%s", &namaCari);
-
-        fileDaftarKontak = fopen("userdata.dat", "rb");
-        fileTempKontak = fopen("temp.dat", "wb");
-
-        while (fread(&kontak, sizeof(struct Kontak), 1, fileDaftarKontak) == 1)
-        {
-            if (strcmp(kontak.nama, namaCari) != 0)
-            {
-                fwrite(&kontak, sizeof(struct Kontak), 1, fileTempKontak);
-            }
-        }
-        fclose(fileDaftarKontak);
-        fclose(fileTempKontak);
-
-        remove("userdata.dat");
-
-        // Mengganti nama file sementara menjadi nama file asli
-        rename("temp.dat", "userdata.dat");
-
-        printf("Kontak dengan nama telah dihapus.\n");
-        break;
-
-    case 4:
-        remove("userdata.dat");
-        fileDaftarKontak = fopen("userdata.dat", "w");
-        break;
-
-    default:
-        printf("Menu Tidak Tersedia!");
-        break;
     }
 
     fclose(fileDaftarKontak);
+    remove("userdata.dat");
+    fclose(fileTempKontak);
+    rename("temp.dat", "userdata.dat");
+
+    // Mengganti nama file sementara menjadi nama file asli
+
+    printf("Kontak telah dihapus.\n");
+}
+int cobaLagi(char text[])
+{
+    int cobaLagi;
+    printf("%s", text);
+    scanf("%d", &cobaLagi);
+    return cobaLagi;
+}
+
+int main()
+{
+    int hasil;
+    char namaCari[50];
+    int menuTerpilih;
+    do
+    {
+        printf("\n=================SELAMAT DATANG DI DASHBOARD KONTAK KARYAWAN=================");
+        printf("\n1.Tambah Kontak Karyawan");
+        printf("\n2.Cari Kontak Karyawan");
+        printf("\n3.Hapus Kontak Karyawan");
+        printf("\n4.Hapus Semua Kontak");
+        printf("\nPilih Menu : ");
+        scanf("%d", &menuTerpilih);
+
+        switch (menuTerpilih)
+        {
+
+        case 1:
+            do
+            {
+                tambahKontak();
+
+                hasil = cobaLagi("Tambah Kontak Lain? (1)Ya || (0)Tidak : ");
+            } while (hasil == 1);
+            break;
+        case 2:
+            do
+            {
+                printf("Masukkan nama yang ingin dicari : ");
+                scanf("%s", &namaCari);
+                cariKontak(namaCari);
+
+                hasil = cobaLagi("Cari Kontak Lain? (1)Ya || (0)Tidak : ");
+            } while (hasil == 1);
+            break;
+
+        case 3:
+            do
+            {
+                printf("\nMasukan nama kontak: ");
+                scanf("%s", &namaCari);
+
+                hapusKontak(namaCari);
+                hasil = cobaLagi("Hapus kontak lain? (1)Ya || (0)Tidak  : ");
+            } while (hasil == 1);
+            break;
+
+        case 4:
+            remove("userdata.dat");
+            fileDaftarKontak = fopen("userdata.dat", "w");
+            break;
+
+        default:
+            printf("Menu Tidak Tersedia!");
+            break;
+        }
+        hasil = cobaLagi("Coba Lagi? (1)Ya || (0)Tidak : ");
+    } while (hasil == 1);
 
     return 0;
 }
