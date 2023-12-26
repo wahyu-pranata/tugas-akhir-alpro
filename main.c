@@ -1,3 +1,11 @@
+/**
+ * Oleh: Kelompok 2 Kelas B
+ * 1. I Komang Wahyu Pranata (026)
+ * 2. I Nyoman Suryadana (032)
+ * 3. Jesika Emiya Pepayosa BR Sembiring (038)
+ * 4. Bagus Ajie Satria (044)
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -257,11 +265,44 @@ int cobaLagi(char text[])
     return cobaLagi;
 }
 
+void login()
+{
+    char inputUsername[99] = "";
+    char inputPassword[99] = "";
+    char username[10] = "admin";
+    char password[10] = "12345678";
+
+    bool sudahMasuk = false;
+    system("clear");
+
+    printf("Silahkan login terlebih dahulu!\n");
+    do
+    {
+        printf("Masukkan username: \n");
+        scanf("%s", inputUsername);
+
+        printf("Masukkan password: \n");
+        scanf("%s", inputPassword);
+
+        if (strcmp(inputUsername, username) == 0 && strcmp(inputPassword, password) == 0)
+        {
+            sudahMasuk = true;
+        }
+        else
+        {
+            printf("Username/password salah!\n");
+        }
+    } while (!sudahMasuk);
+}
+
 int main()
 {
     int hasil;
     char namaCari[50];
     char pilihan;
+
+    login();
+
     do
     {
         system("clear");
